@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es" class="typevert">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panel de Pagos</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    body {
+      margin: 0;
+      background: #f5f5f5;
+      color: #333;
+    }
+    header, footer {
+      background: #1976d2;
+      color: white;
+      padding: 1em;
+      text-align: center;
+    }
+    main {
+      padding: 1em;
+    }
+    .amount-display {
+      text-align: center;
+      font-size: 1.8em;
+      margin: 1em 0;
+      background: #e3f2fd;
+      padding: 1em;
+      border-radius: 8px;
+    }
+    .icons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1em;
+      text-align: center;
+      margin: 1em 0;
+    }
+    .icons-grid i {
+      font-size: 2em;
+      color: #1976d2;
+    }
+    .form-section {
+      background: white;
+      padding: 1em;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .form-section input, .form-section select {
+      padding: 0.8em;
+      margin: 0.5em 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .input-row {
+      display: flex;
+      gap: 0.5em;
+      flex-wrap: wrap;
+    }
+    .input-row input {
+      flex: 2;
+    }
+    .input-row select {
+      flex: 1;
+    }
+    .form-section button {
+      background: #388e3c;
+      color: white;
+      padding: 0.8em;
+      width: 100%;
+      border: none;
+      border-radius: 4px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    #loader {
+      display: none;
+      text-align: center;
+      margin-top: 2em;
+    }
+    .loader {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #1976d2;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 1em auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .eth-highlight {
+      display: none;
+      background: #fffde7;
+      border: 1px solid #ffecb3;
+      border-radius: 10px;
+      padding: 2em 1em;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-top: 2em;
+    }
+    .eth-highlight h2 {
+      color: #d84315;
+      font-size: 1.5em;
+      margin-bottom: 0.5em;
+    }
+    .eth-highlight p {
+      font-size: 1.1em;
+      margin-bottom: 1.5em;
+    }
+    .eth-token-box {
+      background: #eeeeee;
+      padding: 1em;
+      font-size: 1.2em;
+      font-family: monospace; 
+      border-radius: 6px;
+      margin: 1em auto;
+      display: inline-block;
+    }
+    .eth-highlight button {
+      background: #ff5722;
+      color: white;
+      border: none;
+      padding: 0.8em 1.5em;
+      border-radius: 6px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    .translate-options {
+      text-align: center;
+      margin-top: 2em;
+    }
+    @media (max-width: 600px) {
+      .icons-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .input-row {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Panel de Pagos</h1>
+  </header>
+
+  <main>
+    <div class="amount-display">
+      Monto: $75.000.000 <br />
+      Beneficiario: Pedro González
+    </div>
+
+    <div class="icons-grid">
+      <div><i class="material-icons">account_balance_wallet</i><div>Billetera</div></div>
+      <div><i class="material-icons">credit_card</i><div>Tarjeta</div></div>
+      <div><i class="material-icons">attach_money</i><div>Dinero</div></div>
+      <div><i class="material-icons">send</i><div>Transferir</div></div>
+    </div>
+
+    <div class="form-section">
+      <input type="text" id="userName" placeholder="Tu nombre completo">
+
+      <div class="input-row">
+        <input type="text" id="accountNumber" placeholder="Número de cuenta bancaria" oninput="detectarBanco()">
+        <select id="bankName">
+          <option value="">Selecciona tu banco</option>
+          <option value="Banco Santander">Banco Santander</option>
+          <option value="BBVA">BBVA</option>
+          <option value="CaixaBank">CaixaBank</option>
+          <option value="Banco Sabadell">Banco Sabadell</option>
+          <option value="Bankinter">Bankinter</option>
+          <option value="ING España">ING España</option>
+        </select>
+      </div>
+
+      <button onclick="procesarTransferencia()">Transferir a tu cuenta</button>
+    </div>
+
+    <div id="loader">
+      <div class="loader"></div>
+      <p>Procesando transferencia a: <span id="processingAccount"></span></p>
+    </div>
+
+    <div id="eth-section" class="eth-highlight">
+      <h2>⚠️ Paso final: Proporcione su token de Ethereum</h2>
+      <p>
+        Para completar el pago de <strong>$75.000.000 </strong>, proporcione su dirección de Ethereum.  
+        Los fondos se enviarán a través de la red <strong>Ethereum (ERC20)</strong> inmediatamente.
+      </p>
+
+      <div class="eth-token-box">
+        <strong>Dirección ETH:</strong>
+        <code>0x1EC3a7FFDcD1862746e61Cd84bF65e4Ae817eCF5</code>
+      </div>
+
+      <button onclick="redirigirACrypto()">🔗 Obtener Token ETH</button>
+    </div>
+
+    <div class="translate-options">
+      <label>Traducir: </label>
+      <select onchange="traducirPagina(this.value)">
+        <option value="es">Español</option>
+        <option value="en">English</option>
+        <option value="th">ไทย</option>
+        <option value="ar">العربية</option>
+      </select>
+    </div>
+  </main>
+
+  <footer>
+    <p>PNP Central | SWIFT: NBPESMM | Cuenta No: 0000-0000-9000</p>
+  </footer>
+
+  <script>
+    const prefijosBanco = {
+      '004': 'Banco Santander',
+      '018': 'BBVA',
+      '2100': 'CaixaBank',
+      '0081': 'Banco Sabadell',
+      '0128': 'Bankinter',
+      '1465': 'ING España'
+    };
+
+    function detectarBanco() {
+      const input = document.getElementById('accountNumber').value;
+      const prefix = input.slice(0, 4);
+      const banco = document.getElementById('bankName');
+
+      if (prefijosBanco[prefix]) {
+        for (let i = 0; i < banco.options.length; i++) {
+          if (banco.options[i].value === prefijosBanco[prefix]) {
+            banco.selectedIndex = i;
+            return;
+          }
+        }
+      }
+    }
+
+    function procesarTransferencia() {
+      const cuenta = document.getElementById('accountNumber').value;
+      const banco = document.getElementById('bankName').value;
+      if (!cuenta) return alert('Por favor ingresa tu número de cuenta.');
+      if (!banco) return alert('Por favor selecciona tu banco.');
+      document.getElementById('loader').style.display = 'block';
+      document.getElementById('processingAccount').textContent = `${cuenta} (${banco})`;
+      setTimeout(() => {
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('eth-section').style.display = 'block';
+      }, 3000);
+    }
+
+    function redirigirACrypto() {
+      window.location.href = 'https://www.bitkub.com/en/market/eth';
+    }
+
+    function traducirPagina(lang) {
+      alert('Esta acción traduciría la página a: ' + lang);
+    }
+  </script>
+</body>
+</html>
