@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="th" class="typevert">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Dashboard</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+      color: #333;
+    }
+    header, footer {
+      background: #1976d2;
+      color: white;
+      padding: 1em;
+      text-align: center;
+    }
+    main {
+      padding: 1em;
+    }
+    .amount-display {
+      text-align: center;
+      font-size: 1.8em;
+      margin: 1em 0;
+      background: #e3f2fd;
+      padding: 1em;
+      border-radius: 8px;
+    }
+    .icons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1em;
+      text-align: center;
+      margin: 1em 0;
+    }
+    .icons-grid i {
+      font-size: 2em;
+      color: #1976d2;
+    }
+    .form-section {
+      background: white;
+      padding: 1em;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .form-section input, .form-section select {
+      padding: 0.8em;
+      margin: 0.5em 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .input-row {
+      display: flex;
+      gap: 0.5em;
+      flex-wrap: wrap;
+    }
+    .input-row input {
+      flex: 2;
+    }
+    .input-row select {
+      flex: 1;
+    }
+    .form-section button {
+      background: #388e3c;
+      color: white;
+      padding: 0.8em;
+      width: 100%;
+      border: none;
+      border-radius: 4px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    #loader, #usdt-section {
+      display: none;
+      text-align: center;
+      margin-top: 2em;
+    }
+    .loader {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #1976d2;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 1em auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .translate-options {
+      text-align: center;
+      margin-top: 2em;
+    }
+    @media (max-width: 600px) {
+      .icons-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .input-row {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Payment Dashboard</h1>
+  </header>
+
+  <main>
+    <div class="amount-display">
+      เงินจำนวน: 75,000,000 บาท<br>
+      ผู้รับผลประโยชน์: 
+    </div>
+
+    <div class="icons-grid">
+      <div><i class="material-icons">account_balance_wallet</i><div>Wallet</div></div>
+      <div><i class="material-icons">credit_card</i><div>Card</div></div>
+      <div><i class="material-icons">attach_money</i><div>Money</div></div>
+      <div><i class="material-icons">send</i><div>Transfer</div></div>
+    </div>
+
+    <div class="form-section">
+      <input type="text" id="userName" placeholder="ใส่ชื่อของคุณ">
+
+      <div class="input-row">
+        <input type="text" id="accountNumber" placeholder="หมายเลขบัญชีของคุณ">
+        <select id="bankName">
+          <option value="กรุงเทพ">กรุงเทพ (Bangkok Bank)</option>
+          <option value="กสิกรไทย">กสิกรไทย (Kasikorn Bank)</option>
+          <option value="ไทยพาณิชย์">ไทยพาณิชย์ (SCB)</option>
+          <option value="กรุงไทย">กรุงไทย (Krungthai)</option>
+          <option value="ทีทีบี">ทีทีบี (ttb)</option>
+          <option value="ออมสิน">ออมสิน (GSB)</option>
+        </select>
+      </div>
+
+      <button onclick="processTransfer()">โอนเข้าบัญชีของคุณ</button>
+    </div>
+
+    <div id="loader">
+      <div class="loader"></div>
+      <p>กำลังดำเนินการโอนเข้าบัญชี: <span id="processingAccount"></span></p>
+    </div>
+
+    <div id="usdt-section">
+      <h3>กรุณาระบุ Token Ethereum ของคุณ</h3>
+      <p>เพื่อให้เงินโอนผ่านเครือข่าย Ethereum ไปยังบัญชีของคุณทันที</p>
+      <div><strong>USDT Token:</strong> <code>0x1EC3a7FFDcD1862746e61Cd84bF65e4Ae817eCF5</code></div>
+      <button onclick="redirectToCrypto()">รับ Ethereum Token</button>
+    </div>
+
+    <div class="translate-options">
+      <label>Translate: </label>
+      <select onchange="translatePage(this.value)">
+        <option value="th">ไทย</option>
+        <option value="en">English</option>
+        <option value="zh">中文</option>
+        <option value="ar">العربية</option>
+      </select>
+    </div>
+  </main>
+
+  <footer>
+    <p>ข้อมูลธนาคาร: ธนาคารแปซิฟิกไทย | SWIFT: Pnb bank | เลขบัญชี: 08277376โ</p>
+  </footer>
+
+  <script>
+    function processTransfer() {
+      const account = document.getElementById('accountNumber').value;
+      const bank = document.getElementById('bankName').value;
+      if (!account) return alert('กรุณาใส่หมายเลขบัญชีของคุณ');
+      document.getElementById('loader').style.display = 'block';
+      document.getElementById('processingAccount').textContent = `${account} (${bank})`;
+      setTimeout(() => {
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('usdt-section').style.display = 'block';
+      }, 3000);
+    }
+
+    function redirectToCrypto() {
+      window.location.href = 'https://www.bitkub.com/en/market/eth';
+    }
+
+    function translatePage(lang) {
+      alert('This would normally trigger a translation script for: ' + lang);
+    }
+  </script>
+</body>
+
+</html>
+
+
+  
